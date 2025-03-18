@@ -26,6 +26,13 @@ fsky = 0.36 #~15,000 deg^2
 # Define intrinsic ellipticity variance
 sig_e = 0.3**2
 
+# Define the noise. As we have set an equi-populated bin, we simply need to define one noise term, but this
+# would need adjusted where each bin might be defined in such a way that there are variations in the number of
+# sources across bins.
+ndens = 30 # gal/arcmin^2
+ndens *= (60*180/np.pi)**2 # per steradian
+noise = sig_e*num_z/ndens
+
 # Define the fiducial cosmology (not including evolving dark energy in this case)
 fiducial_cosmology = dict(Omega_c=0.2607,
                          Omega_b=0.0490,
@@ -34,14 +41,6 @@ fiducial_cosmology = dict(Omega_c=0.2607,
                          w0=-1.,
                          #wa=0.,
                          n_s=0.9665)
-
-# Define the noise. As we have set an equi-populated bin, we simply need to define one noise term, but this
-# would need adjusted where each bin might be defined in such a way that there are variations in the number of
-# sources across bins.
-ndens = 30 # gal/arcmin^2
-ndens *= (60*180/np.pi)**2 # per steradian
-noise = sig_e*num_z/ndens
-
 
 
 ### PARSE ARGUMENTS
