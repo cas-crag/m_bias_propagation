@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Code to estimate bias in C_ls given an m-bias map defined by an RMS of spatial variations (parametrised by rank command line argument)
-and characteristic angular scale of variations (parametrised by bias_ell command line argument)
+and characteristic angular scale of variations (parametrised by mbias_ell command line argument)
 
 Uses functions from fisher.py and redshift_dist.py modules
 """
