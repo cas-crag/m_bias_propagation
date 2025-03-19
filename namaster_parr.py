@@ -132,10 +132,12 @@ def m_bias_map(bias_rms,bias_ell):
     
     bias_cl=np.zeros(3*nside-1)
 
-    bias_cl_std = 64. # width of m-bias field C_l Gaussian profile 
+    bias_cl_std = 64. # width of m-bias field C_l Gaussian profile -- doesn't affect things much
 
+    # Gaussian-profile m-bias C_l we use to generate the m-bias map
     bias_cl = ((bias_cl_std*np.sqrt(2*np.pi))**(-1))*np.exp(-0.5*((ell_centres-bias_ell)/bias_cl_std)**2)
 
+    # Generate m-bias map using synfast
     delta_m_unnormed=synfast(bias_cl)
 
     return bias_rms*delta_m_unnormed/np.std(delta_m_unnormed)
