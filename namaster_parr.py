@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
+"""
+Code to estimate bias in C_ls given an m-bias map defined by an RMS of spatial variations (parametrised by rank command line argument)
+and characteristic angular scale of variations (parametrised by bias_ell command line argument)
 
+Uses functions from fisher.py and redshift_dist.py modules
+"""
 import numpy as np
 import pyccl as ccl
 import pymaster as nmt
 import healpy as hp
+import os
 
 from fisher import construct_data_vector_and_covariance, construct_data_vector_labels
 from redshift_dist import conv_nz
@@ -11,10 +17,6 @@ from redshift_dist import conv_nz
 ### INITIALISE HYPERPARAMETERS
 
 nside = 4096
-
-cl_folder = "./delta_cells_nside_%d/"%(nside)
-
-os.chdir(cl_folder)
 
 npix = hp.nside2npix(nside) # number of pixels in HEALPix map
 
@@ -47,13 +49,13 @@ fiducial_cosmology = dict(Omega_c=0.2607,
 
 argopts = optparse.OptionParser("usage: %prog [options] arg1")
 argopts.add_option("-r", "--rank", dest="rank", nargs=1, type="int")
-argopts.add_option("-l", "--bias_ell", dest="bias_ell", nargs=1, type="int")
+argopts.add_option("-l", "--mbias_ell", dest="mbias_ell", nargs=1, type="int")
 
 (options, args) = argopts.parse_args()
 
 rank = options.rank # defines m-bias spatial variations RMS value (integer factor of 0.01)
 
-bias_ell = options.bias_ell # defines characteristic angular scale of m-bias variations
+mbias_ell = options.mbias_ell # defines characteristic angular scale of m-bias variations
 
 mbias_rms = (rank+1)*0.01
 
@@ -119,7 +121,7 @@ def synfast(c_ell):
 
     return syn_map
 
-def m_bias_map(bias_rms):
+def m_bias_map(bias_rms,bias_ell):
     """
     Generate HEALPix map of m-bias field with Gaussian profile
     Arguments:
@@ -138,14 +140,12 @@ def m_bias_map(bias_rms):
 
     return bias_rms*delta_m_unnormed/np.std(delta_m_unnormed)
 
-def delta_cls():
+def delta_cls(bias_rms,bias_ell):
     """
     Generate the mode-coupling matrix, convolve with the C_ls, and calculate the delta C_ls
     Returns:
         (numpy.array): Vector of delta C_ls
     """
-    # Generate tomographic n(z) redshift distributions
-    dndz = conv_nz()
 
     # Define the ell values on which the data vector is constructed
     # get_cl function uses the middle of the ell bins, so generate ell bin boundaries
@@ -174,7 +174,7 @@ def delta_cls():
             dv_fid[cl_idx] = 0.
 
     # Generate m_bias map
-    delta_m = m_bias_map(mbias_rms)
+    delta_m = m_bias_map(bias_rms,bias_ell)
 
     # Get mode-coupling matrix
     zero = np.zeros(npix)
@@ -212,7 +212,18 @@ if __name__ == '__main__':
     main entry point
     """
 
-    delta_cl = delta_cls()
+    cl_folder = "./delta_cells_nside_%d/"%(nside)
+    if os.path.isdir(cl_folder):
+        os.chdir(cl_folder)
+    else:
+        os.mkdir(cl_folder)
+        os.chdir(cl_folder)
+
+    # Generate tomographic n(z) redshift distributions
+    dndz = conv_nz()
+
+    # Calculate biased C_ls
+    delta_cl = delta_cls(mbias_rms,mbias_ell)
 
     delta_cl_str = "delta_cl_nside_%d_rms_%d.txt"%(nside,mbias_rms)
 
