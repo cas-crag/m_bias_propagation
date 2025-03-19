@@ -14,7 +14,7 @@ import os
 from fisher import construct_data_vector_and_covariance, construct_data_vector_labels
 from redshift_dist import conv_nz
 
-### INITIALISE HYPERPARAMETERS
+### INITIALISATION
 
 nside = 4096
 
