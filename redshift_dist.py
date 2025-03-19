@@ -11,6 +11,8 @@ import optparse
 
 ### Functions to construct ficudial tomographic n(z) for stage-IV-like WL survey
 
+_modulelabel = "redshift_dist"
+
 def smail_redshift(z, zmed, alpha = 2, beta = 1.5):
     """
     Return the Smail et al redshift distribution.
